@@ -9,9 +9,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/covrom/decnum"
+
 	"github.com/covrom/gonec/names"
 	"github.com/satori/go.uuid"
-	"github.com/shopspring/decimal"
 )
 
 // LoadAllBuiltins is a convenience function that loads all defineSd builtins.
@@ -114,8 +115,8 @@ func Import(env *Env) *Env {
 	env.DefineS("пауза", VMFuncMustParams(1, func(args VMSlice, rets *VMSlice, envout *(*Env)) error {
 		*envout = env
 		if v, ok := args[0].(VMNumberer); ok {
-			sec1 := decimal.New(int64(VMSecond), 0)
-			time.Sleep(time.Duration(v.Decimal().Mul(VMDecimal(sec1)).Int()))
+			sec1 := NewVMDecNumFromInt64(int64(VMSecond))
+			time.Sleep(time.Duration(v.DecNum().Mul(sec1).Int()))
 			return nil
 		}
 		return VMErrorNeedSeconds
@@ -219,6 +220,66 @@ func Import(env *Env) *Env {
 		return VMErrorNeedString
 	}))
 
+	env.DefineS("стрнайти", VMFuncMustParams(2, func(args VMSlice, rets *VMSlice, envout *(*Env)) error {
+		*envout = env
+		v1, ok1 := args[0].(VMStringer)
+		v2, ok2 := args[1].(VMStringer)
+		if ok1 && ok2 {
+			rets.Append(VMInt(strings.Index(string(v1.String()), string(v2.String()))))
+			return nil
+		}
+		return VMErrorNeedString
+	}))
+
+	env.DefineS("стрнайтилюбой", VMFuncMustParams(2, func(args VMSlice, rets *VMSlice, envout *(*Env)) error {
+		*envout = env
+		v1, ok1 := args[0].(VMStringer)
+		v2, ok2 := args[1].(VMStringer)
+		if ok1 && ok2 {
+			rets.Append(VMInt(strings.IndexAny(string(v1.String()), string(v2.String()))))
+			return nil
+		}
+		return VMErrorNeedString
+	}))
+
+	env.DefineS("стрнайтипоследний", VMFuncMustParams(2, func(args VMSlice, rets *VMSlice, envout *(*Env)) error {
+		*envout = env
+		v1, ok1 := args[0].(VMStringer)
+		v2, ok2 := args[1].(VMStringer)
+		if ok1 && ok2 {
+			rets.Append(VMInt(strings.LastIndex(string(v1.String()), string(v2.String()))))
+			return nil
+		}
+		return VMErrorNeedString
+	}))
+
+	env.DefineS("стрзаменить", VMFuncMustParams(3, func(args VMSlice, rets *VMSlice, envout *(*Env)) error {
+		*envout = env
+		v1, ok1 := args[0].(VMStringer)
+		v2, ok2 := args[1].(VMStringer)
+		v3, ok3 := args[2].(VMStringer)
+		if ok1 && ok2 && ok3 {
+			rets.Append(VMString(strings.Replace(string(v1.String()), string(v2.String()), string(v3.String()), -1)))
+			return nil
+		}
+		return VMErrorNeedString
+	}))
+
+	env.DefineS("окр", VMFuncMustParams(2, func(args VMSlice, rets *VMSlice, envout *(*Env)) error {
+		*envout = env
+		v1, ok1 := args[0].(VMDecNum)
+		if !ok1 {
+			return VMErrorNeedDecNum
+		}
+		v2, ok2 := args[1].(VMInt)
+		if !ok2 {
+			return VMErrorNeedInt
+		}
+
+		rets.Append(VMDecNum{num: v1.num.RoundWithMode(int32(v2), decnum.RoundHalfUp)})
+		return nil
+	}))
+
 	env.DefineS("формат", VMFunc(func(args VMSlice, rets *VMSlice, envout *(*Env)) error {
 		*envout = env
 		if len(args) < 2 {
@@ -300,7 +361,7 @@ func Import(env *Env) *Env {
 
 	// при изменении состава типов не забывать изменять их и в lexer.go
 	env.DefineTypeS("целоечисло", ReflectVMInt)
-	env.DefineTypeS("число", ReflectVMDecimal)
+	env.DefineTypeS("число", ReflectVMDecNum)
 	env.DefineTypeS("булево", ReflectVMBool)
 	env.DefineTypeS("строка", ReflectVMString)
 	env.DefineTypeS("массив", ReflectVMSlice)
@@ -309,7 +370,8 @@ func Import(env *Env) *Env {
 	env.DefineTypeS("длительность", ReflectVMTimeDuration)
 
 	env.DefineTypeS("группаожидания", ReflectVMWaitGroup)
-
+	env.DefineTypeS("файловаябазаданных", ReflectVMBoltDB)
+	
 	env.DefineTypeStruct("сервер", &VMServer{})
 	env.DefineTypeStruct("клиент", &VMClient{})
 

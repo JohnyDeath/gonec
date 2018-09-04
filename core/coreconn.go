@@ -162,13 +162,13 @@ func (x *VMConn) HttpReq(meth, rurl VMString, body []byte, hdrs, vals VMStringMa
 
 	resp, err = x.httpcl.Do(req)
 
+	res := &VMHttpResponse{r: resp, data: x.data}
 	if err != nil {
+		res.Close()
 		return nil, err
 	}
 
-	res := &VMHttpResponse{r: resp, data: x.data}
-
-	err = res.ReadAll()
+	_, err = res.ReadBody() // читаем ответ и закрываем канал, оставив копию в слайсе, для множественного чтения
 
 	return res, err
 }

@@ -3,13 +3,12 @@
 [![Gonec Logo](/extra/gonec.png)](https://github.com/covrom/gonec/releases)
 
 [![Presentation](/extra/button_ppt.png)](https://gitpitch.com/covrom/gonec)
-[![Chat](/extra/button_chat.png)](https://gitter.im/gonec/Lobby)
+[![Demo site](/extra/button_play.png)](https://gonec.herokuapp.com/)
 
 [![Download](/extra/button_down.png)](https://github.com/covrom/gonec/releases)
 [![Docs](/extra/button_doc.png)](https://github.com/covrom/gonec/wiki)
 
-[![Demo site](/extra/button_play.png)](https://gonec.herokuapp.com/)
-
+[![Chat](/extra/button_chat.png)](https://gitter.im/gonec/Lobby)
 [![Blog](/extra/button_blog.png)](https://www.facebook.com/gonecplatform/)
 
 ## Цели
@@ -27,6 +26,10 @@
 ## Описание синтаксиса языка и примеры использования интерпретатора
 
 [Документация находится здесь](https://github.com/covrom/gonec/wiki)
+
+Пример приложения "Список задач":
+
+[![Todo application](/extra/TODOApp.png)](https://github.com/covrom/gonec/wiki/%D0%9F%D1%80%D0%B8%D0%BC%D0%B5%D1%80-%D1%81%D0%BF%D0%B8%D1%81%D0%BE%D0%BA-%D0%B7%D0%B0%D0%B4%D0%B0%D1%87)
 
 ## Масштабируемость языка и платформы
 Язык Гонец расширяется путем изменения правил синтаксиса в формате YACC, а так же написания собственных высокоэффективных библиотек структур и функций на Го, которые могут быть доступны как объекты метаданных в языке Гонец.
