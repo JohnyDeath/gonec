@@ -561,6 +561,22 @@ func RunWorker(stmts binstmt.BinStmts, labels []int, numofregs int, env *core.En
 					catcherr = binstmt.NewStringError(stmt, "Ключ должен быть строкой")
 					goto catching
 				}
+			case core.VMIndexer:
+				if iv, ok := i.(core.VMInt); ok {
+					ii := int(iv)
+					lenvv := int(vv.Length())
+					if ii < 0 {
+						ii += lenvv
+					}
+					if ii < 0 || ii >= lenvv {
+						catcherr = binstmt.NewStringError(stmt, "Индекс за пределами границ")
+						goto catching
+					}
+					registers[s.Reg] = vv.IndexVal(iv)
+				} else {
+					catcherr = binstmt.NewStringError(stmt, "Индекс должен быть целым числом")
+					goto catching
+				}
 			default:
 				catcherr = binstmt.NewStringError(stmt, "Неверная операция")
 				goto catching
@@ -958,9 +974,10 @@ func RunWorker(stmts binstmt.BinStmts, labels []int, numofregs int, env *core.En
 		case *binstmt.BinFOREACH:
 			val := registers[s.Reg]
 
-			switch val.(type) {
-			case core.VMSlice:
+			switch vv := val.(type) {
+			case core.VMSlicer:
 				registers[s.RegIter] = core.VMInt(-1)
+				registers[s.Reg] = vv.Slice()
 			case core.VMChan:
 				registers[s.RegIter] = nil
 			default:
